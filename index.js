@@ -10,40 +10,47 @@ dotenv.config()
 app.use(express.json())
 
 
+
 app.route('/api/google')
    .post(async (req, res) => {
 
       const data = req.body
 
-      const auth = new google.auth.GoogleAuth({
-         credentials: {
-            client_email: process.env.G_CLIENT_EMAIL,
-            private_key: process.env.G_PRIVATE_KEY.split(String.raw`\n`).join('\n'),
-         },
-         scopes: 'https://www.googleapis.com/auth/spreadsheets'
-      })
+      try {
+         const auth = new google.auth.GoogleAuth({
+            credentials: {
+               client_email: process.env.G_CLIENT_EMAIL,
+               private_key: process.env.G_PRIVATE_KEY.split(String.raw`\n`).join('\n'),
+            },
+            scopes: 'https://www.googleapis.com/auth/spreadsheets'
+         })
 
-      const client = await auth.getClient()
+         const client = await auth.getClient()
 
-      const googleSheets = google.sheets({ version: 'v4', auth: client })
+         const googleSheets = google.sheets({ version: 'v4', auth: client })
 
-      const spreadsheetId = '1se4kiee1MIukwsnizpuUI4QtyFkA2Kjgg95RsbEcbMQ'
+         const spreadsheetId = process.env.SPREADSHEET_ID
 
-      googleSheets.spreadsheets.values.append({
-         auth,
-         spreadsheetId,
-         range: 'Лист1',
-         valueInputOption: 'USER_ENTERED',
-         resource: {
-            values: [
-               [new Date().toLocaleString().replace(/\./g, '/'), data?.name, data?.email, data?.phone, data?.tarif, data?.telegram]
-            ]
-         }
-      })
+         googleSheets.spreadsheets.values.append({
+            auth,
+            spreadsheetId,
+            range: 'Лист1',
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+               values: [
+                  [new Date().toLocaleString().replace(/\./g, '/'), data?.name, data?.email, data?.phone, data?.error]
+               ]
+            }
+         })
 
+         res.status(200).send('Лид успешно добавлен в таблицу!')
+
+      } catch (err) {
+         console.log(err)
+         res.status(400).send('Ошибка на стороне сервера!')
+      }
 
    })
-
 
 const port = process.env.PORT
 
