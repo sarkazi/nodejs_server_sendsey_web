@@ -2,6 +2,7 @@ import express from 'express'
 import { google } from 'googleapis'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import {promisify} from 'util'
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.route('/api/google')
 
          const spreadsheetId = process.env.SPREADSHEET_ID
 
-         googleSheets.spreadsheets.values.append({
+         promisify(googleSheets.spreadsheets.values.append({
             auth,
             spreadsheetId,
             range: 'Лист1',
@@ -41,7 +42,9 @@ app.route('/api/google')
                   [new Date().toLocaleString().replace(/\./g, '/'), data?.name, data?.email, data?.phone, data?.error]
                ]
             }
-         })
+         }))
+         
+         res.send('Лид успешно добавлен в таблицу!')
 
         
 
