@@ -43,7 +43,7 @@ app.route('/api/google')
             }
          })
 
-         res.status(200).send('Лид успешно добавлен в таблицу!')
+        
 
       } catch (err) {
          console.log(err)
